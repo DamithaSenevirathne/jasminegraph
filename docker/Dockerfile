@@ -1,24 +1,24 @@
-FROM ubuntu:bionic
+FROM ubuntu:18.04
 WORKDIR /home/ubuntu
 RUN mkdir software
 WORKDIR /home/ubuntu/software
-RUN apt-get update
+RUN apt-get update --no-install-recommends
 RUN apt-get -y install apt-transport-https ca-certificates curl gnupg2 software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-RUN apt-get update
-RUN apt-get -y install docker-ce
-RUN apt-get update && apt-get install -y git
-RUN apt-get install -y cmake
+RUN apt-get update --no-install-recommends
+RUN apt-get -y install docker-ce --no-install-recommends
+RUN apt-get update && apt-get install -y git --no-install-recommends
+RUN apt-get install -y cmake --no-install-recommends
 RUN git clone https://github.com/google/flatbuffers.git
 WORKDIR /home/ubuntu/software/flatbuffers
 RUN git checkout tags/v1.10.0
 RUN apt-get update
-RUN apt-get install -y build-essential
-RUN cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+RUN apt-get install -y build-essential --no-install-recommends
+RUN cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release 
 RUN make
 WORKDIR /home/ubuntu/software
-RUN apt-get install -y wget
+RUN apt-get install -y wget --no-install-recommends
 #RUN wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz
 RUN git clone https://github.com/chinthakarukshan/metis.git
 WORKDIR /home/ubuntu/software/metis
@@ -29,11 +29,11 @@ RUN make config shared=1 cc=gcc-7
 RUN make install
 WORKDIR /home/ubuntu/software
 RUN git clone https://github.com/gabime/spdlog.git
-RUN apt-get install -y sqlite3
-RUN apt-get install -y libsqlite3-dev
-RUN apt install -y librdkafka-dev
-RUN apt-get update
-RUN apt-get install -y libboost-all-dev
+RUN apt-get install -y sqlite3 --no-install-recommends
+RUN apt-get install -y libsqlite3-dev --no-install-recommends
+RUN apt install -y librdkafka-dev --no-install-recommends
+RUN apt-get update --no-install-recommends
+RUN apt-get install -y libboost-all-dev --no-install-recommends
 WORKDIR /home/ubuntu/software
 RUN git clone https://github.com/mfontanini/cppkafka.git
 RUN apt-get install -y libssl-dev
@@ -46,6 +46,7 @@ RUN make install
 WORKDIR /home/ubuntu/software
 RUN wget https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-3.2.2.tar.gz
 RUN tar -xvf xerces-c-3.2.2.tar.gz
+RUN rm -r /home/ubuntu/software/xerces-c-3.2.2.tar.gz
 WORKDIR /home/ubuntu/software/xerces-c-3.2.2
 RUN sh configure --disable-transcoder-icu
 RUN make install
@@ -60,36 +61,42 @@ RUN make
 WORKDIR /home/ubuntu/software
 RUN wget http://zlib.net/pigz/pigz-2.4.tar.gz
 RUN tar -xvf pigz-2.4.tar.gz
+RUN rm -r /home/ubuntu/software/pigz-2.4.tar.gz
 WORKDIR /home/ubuntu/software/pigz-2.4
 RUN make
 ENV PATH="/home/ubuntu/software/pigz-2.4/pigz:${PATH}"
 WORKDIR /home/ubuntu/software
-RUN apt-get update
-RUN apt-get install -y software-properties-common
-RUN apt-get update
+RUN apt-get update --no-install-recommends
+RUN apt-get install -y software-properties-common --no-install-recommends
+RUN apt-get update --no-install-recommends
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get install -y python3.5-dev
 RUN apt-get install -y libtool
-
-RUN git clone https://github.com/chinthakarukshan/jasminegraph.git
+RUN git clone https://github.com/miyurud/jasminegraph.git
 ENV HOME="/home/ubuntu"
 WORKDIR /home/ubuntu/software/jasminegraph
-RUN apt-get update
+RUN apt-get update --no-install-recommends
 RUN apt-get install -y python-pip
 RUN pip install -r ./GraphSAGE/requirements
-RUN sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.so)' CMakeLists.txt
-RUN sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libxerces-c-3.2.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libxerces-c-3.2.so)' CMakeLists.txt
-RUN sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.a)/c\#target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.a)' CMakeLists.txt
-RUN sed -i '/target_link_libraries(JasmineGraph $ENV{HOME}\/software\/xerces-c-3.2.2\/lib\/libxerces-c.so)/c\#target_link_libraries(JasmineGraph $ENV{HOME}\/software\/xerces-c-3.2.2\/lib\/libxerces-c.so)' CMakeLists.txt
-RUN sed -i '/target_link_libraries(JasmineGraph \/opt\/lib\/libxerces-c.a)/c\#target_link_libraries(JasmineGraph \/opt\/lib\/libxerces-c.a)' CMakeLists.txt
-RUN sed -i '/target_link_libraries(JasmineGraph $ENV{HOME}\/software\/cppkafka\/build\/usr\/local\/lib\/libcppkafka.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libcppkafka.so)' CMakeLists.txt
-RUN sed -i '/namespace JasminGraph.Edgestore;/c\namespace JasmineGraph.Edgestore;' src/util/dbutil/edgestore.fbs
+
+RUN sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.so)' CMakeLists.txt && \
+    sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libxerces-c-3.2.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libxerces-c-3.2.so)' CMakeLists.txt && \
+    sed -i '/target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.a)/c\#target_link_libraries(JasmineGraph \/usr\/local\/lib\/libmetis.a)' CMakeLists.txt && \
+    sed -i '/target_link_libraries(JasmineGraph $ENV{HOME}\/software\/xerces-c-3.2.2\/lib\/libxerces-c.so)/c\#target_link_libraries(JasmineGraph $ENV{HOME}\/software\/xerces-c-3.2.2\/lib\/libxerces-c.so)' CMakeLists.txt && \
+    sed -i '/target_link_libraries(JasmineGraph \/opt\/lib\/libxerces-c.a)/c\#target_link_libraries(JasmineGraph \/opt\/lib\/libxerces-c.a)' CMakeLists.txt && \
+    sed -i '/target_link_libraries(JasmineGraph $ENV{HOME}\/software\/cppkafka\/build\/usr\/local\/lib\/libcppkafka.so)/c\target_link_libraries(JasmineGraph \/usr\/local\/lib\/libcppkafka.so)' CMakeLists.txt && \
+    sed -i '/namespace JasminGraph.Edgestore;/c\namespace JasmineGraph.Edgestore;' src/util/dbutil/edgestore.fbs
+
 WORKDIR /home/ubuntu/software/flatbuffers
-RUN ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/edgestore.fbs
-RUN ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/attributestore.fbs
-RUN ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/partedgemapstore.fbs
+RUN ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/edgestore.fbs && \
+    ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/attributestore.fbs && \
+    ./flatc --cpp -o /home/ubuntu/software/jasminegraph/src/util/dbutil /home/ubuntu/software/jasminegraph/src/util/dbutil/partedgemapstore.fbs
+
+RUN mkdir /home/ubuntu/software/metis/metis-5.1.0/bin
+RUN mkdir bin && \
+    cp -i /home/ubuntu/software/metis/metis-5.1.0/build/Linux-x86_64/programs/gpmetis /home/ubuntu/software/metis/metis-5.1.0/bin
 WORKDIR /home/ubuntu/software/jasminegraph
 ENV JASMINEGRAPH_HOME="/home/ubuntu/software/jasminegraph"
 RUN sh build.sh
-ENTRYPOINT ["/home/ubuntu/software/jasminegraph/run-docker.sh"]
+#ENTRYPOINT ["/home/ubuntu/software/jasminegraph/run-docker.sh"]
 CMD ["bash"]
