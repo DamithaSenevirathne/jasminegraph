@@ -53,13 +53,17 @@ public:
 
     static void removeGraph(std::string graphID, SQLiteDBInterface sqlite, std::string masterIP);
 
-    static std::string copyCentralStoreToAggregator(std::string aggregatorHostName, std::string aggregatorPort, std::string host, std::string port, int graphId, int partitionId, std::string masterIP);
+    static std::string copyCentralStoreToAggregator(std::string aggregatorHostName, std::string aggregatorPort, std::string aggregatorDataPort, int graphId, int partitionId, std::string masterIP);
 
-    static long aggregateCentralStoreTriangles(std::string graphId);
+    static std::vector<std::vector<string>> getWorkerCombination (SQLiteDBInterface sqlite, std::string graphId);
 
-    static long countCentralStoreTriangles (std::string aggregatorHostName, std::string aggregatorPort, std::string host, std::string partitionId, std::string graphId, std::string masterIP);
+    static long aggregateCentralStoreTriangles(SQLiteDBInterface sqlite, std::string graphId, std::string masterIP);
+
+    static string countCentralStoreTriangles (std::string aggregatorHostName, std::string aggregatorPort, std::string host, std::string aggregatorPartitionId, std::string partitionIdList, std::string graphId, std::string masterIP);
 
     static long countTriangles(std::string graphId, SQLiteDBInterface sqlite, std::string masterIP);
+
+    static string isCentralstoreAccessibleToWorker(std::string graphId, std::string partitionId, std::string aggregatorHostName, std::string aggregatorPort, std::string masterIP);
 
     static long getTriangleCount(int graphId, std::string host, int port, int partitionId, std::string masterIP);
 
@@ -70,6 +74,8 @@ public:
     static JasmineGraphHashMapCentralStore loadCentralStore(std::string centralStoreFileName);
 
     static map<long, long> getOutDegreeDistributionHashMap(map<long, unordered_set<long>> graphMap);
+
+    static bool isGraphActive(string graphID, SQLiteDBInterface sqlite);
 
 private:
     SQLiteDBInterface sqlite;
